@@ -1,5 +1,5 @@
 // Permet à l'appli de s'ouvrir même sans réseau
-const CACHE = 'fiches-v1';
+const CACHE = 'fiches-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-180.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

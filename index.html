@@ -41,6 +41,7 @@
   .search input{width:100%;height:46px;border-radius:12px;border:1px solid var(--line);
     background:var(--panel);padding:0 42px 0 42px;font-size:17px;outline:none}
   .search input:focus{border-color:var(--accent)}
+  .search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
   .search svg{position:absolute;left:13px;top:13px;opacity:.6}
   .search .clear{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;
     background:var(--panel2);color:var(--muted);font-size:15px}
@@ -95,6 +96,11 @@
   .gallery::-webkit-scrollbar{display:none}
   .gallery img{flex:0 0 auto;width:calc(100% - 24px);max-height:58vh;object-fit:cover;border-radius:var(--r);scroll-snap-align:center;background:var(--panel2)}
   .gallery.single img{width:100%}
+  .galwrap{position:relative}
+  .gcount{position:absolute;top:22px;right:calc(var(--sr) + 30px);background:rgba(0,0,0,.65);color:#fff;font-size:13px;font-weight:700;
+    padding:4px 10px;border-radius:20px;pointer-events:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .ddate{display:block;color:var(--text);font-size:15px;margin:4px 0 12px;line-height:1.5}
+  .ddate b{color:var(--accent);font-weight:600}
   .dtitle{font-size:24px;font-weight:800;margin:6px 0 10px;letter-spacing:-.3px;word-break:break-word}
   .ddesc{white-space:pre-wrap;word-break:break-word;font-size:17px;background:var(--panel);border:1px solid var(--line);
     border-radius:var(--r);padding:14px;-webkit-user-select:text;user-select:text}
@@ -104,6 +110,29 @@
   .btn{flex:1;height:48px;border-radius:12px;background:var(--panel2);font-weight:600}
   .btn.primary{background:var(--accent);color:#1a1300}
   .btn.danger{color:var(--danger)}
+
+  /* Plaque façon française */
+  .plate{display:inline-flex;align-items:stretch;background:#fff;color:#111;border:2px solid #111;border-radius:6px;
+    font:700 15px/1 "DIN Alternate","Arial Narrow",Arial,sans-serif;letter-spacing:1px;overflow:hidden;white-space:nowrap;max-width:100%}
+  .plate::before{content:"F";background:#1f3f9e;color:#fff;font-size:10px;padding:0 4px;display:flex;align-items:flex-end;padding-bottom:2px}
+  .plate span{padding:4px 7px;overflow:hidden;text-overflow:ellipsis}
+  .plate mark{background:#f5b83d;color:#111}
+  .plate.big{font-size:26px;border-width:3px}
+  .plate.big::before{font-size:14px;padding:0 6px 3px}
+  .plate.big span{padding:6px 12px}
+  .cpeople{color:#c4c9d3;font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cpeople b{color:var(--text);font-weight:600}
+
+  .passrow{display:flex;gap:8px;margin-bottom:8px}
+  .passrow .field{flex:1}
+  .passrow .x{width:48px;flex:0 0 48px;border-radius:12px;background:var(--panel2);color:var(--muted);font-size:16px}
+  .addpass{color:var(--accent);font-weight:600;padding:8px 2px}
+
+  .dsec{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+  .dsec .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+  .dsec .v{font-size:17px;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
+  .dsec ul{margin:0;padding-left:20px;font-size:17px}
+  .dsec .none{color:var(--muted);font-style:italic}
 
   #viewer{position:fixed;inset:0;z-index:40;background:#000;display:flex;align-items:center;justify-content:center}
   #viewer img{max-width:100%;max-height:100%;object-fit:contain}
@@ -156,10 +185,17 @@
   <div class="pad">
     <label class="lbl">Photos</label>
     <div class="pgrid" id="edPhotos"></div>
-    <label class="lbl" for="edName">Titre</label>
-    <input class="field" id="edName" placeholder="Ex. Peugeot 308 grise, Jean Dupont…" autocomplete="off">
+    <label class="lbl" for="edPlate">Plaque d’immatriculation</label>
+    <input class="field" id="edPlate" placeholder="AB-123-CD" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:1px;font-weight:600">
+    <label class="lbl" for="edDriver">Conducteur</label>
+    <input class="field" id="edDriver" placeholder="Nom, prénom…" autocomplete="off" autocorrect="off">
+    <label class="lbl">Passagers</label>
+    <div id="edPass"></div>
+    <button class="addpass" id="edAddPass">＋ Ajouter un passager</button>
+    <label class="lbl" for="edAddr">Adresse</label>
+    <input class="field" id="edAddr" placeholder="N°, rue, ville…" autocomplete="off" autocorrect="off">
     <label class="lbl" for="edDesc">Description</label>
-    <textarea class="field" id="edDesc" placeholder="Tout ce que tu veux : plaque (AB-123-CD), modèle, couleur, prénoms, lieu, date, contexte…"></textarea>
+    <textarea class="field" id="edDesc" placeholder="Modèle, couleur, lieu, date, contexte… tout ce que tu veux"></textarea>
   </div>
 </section>
 
@@ -170,10 +206,11 @@
     <div class="t"></div>
     <button class="txtbtn right" id="dtEdit">Modifier</button>
   </div>
-  <div class="gallery" id="dtGallery"></div>
+  <div class="galwrap" id="dtGalWrap"><div class="gallery" id="dtGallery"></div><span class="gcount hidden" id="dtCount"></span></div>
   <div class="pad" style="padding-top:8px">
-    <div class="dtitle" id="dtName"></div>
-    <div class="ddesc" id="dtDesc"></div>
+    <div class="ddate" id="dtDate"></div>
+    <div id="dtPlate" style="margin:6px 0 14px"></div>
+    <div id="dtFields"></div>
     <div class="dmeta" id="dtMeta"></div>
     <div class="actions">
       <button class="btn danger" id="dtDelete">Supprimer la fiche</button>
@@ -273,14 +310,34 @@ function toast(msg) {
 }
 function busy(on, txt) { $('busyText').textContent = txt || 'Traitement…'; $('busy').classList.toggle('hidden', !on); }
 
+/* ================= Modèle de fiche ================= */
+// Ancien format (titre + description) converti automatiquement
+function normFiche(x) {
+  let desc = String(x.description || '');
+  if (x.titre) desc = x.titre + (desc ? '\n' + desc : '');
+  return {
+    id: x.id || uid(),
+    plaque: String(x.plaque || '').toUpperCase(),
+    conducteur: String(x.conducteur || ''),
+    passagers: Array.isArray(x.passagers) ? x.passagers.map(String).filter(s => s.trim()) : [],
+    adresse: String(x.adresse || ''),
+    description: desc,
+    photos: x.photos || [],
+    created: x.created || Date.now(),
+    updated: x.updated || Date.now()
+  };
+}
+const searchText = f => [f.plaque, f.conducteur, ...f.passagers, f.adresse, f.description].join(' \n ');
+const label = f => f.plaque || f.conducteur || f.adresse || (f.description || '').split('\n')[0] || 'Fiche sans titre';
+
 /* ================= Recherche ================= */
 // Insensible aux majuscules/accents. Les tirets/espaces sont ignorés :
 // "ab123", "AB-123" ou "ab 12" retrouvent "AB-123-CD".
 function matches(f, q) {
   const words = fold(q).trim().split(/\s+/).filter(Boolean);
   if (!words.length) return true;
-  const hay = fold(f.titre + ' ' + f.description);
-  const hayC = compact(f.titre + ' ' + f.description);
+  const hay = fold(searchText(f));
+  const hayC = compact(searchText(f));
   const qc = compact(q);
   if (qc.length >= 2 && hayC.includes(qc)) return true;
   return words.every(w => hay.includes(w) || (compact(w) && hayC.includes(compact(w))));
@@ -334,7 +391,7 @@ const listEl = $('list'), qEl = $('q');
 function render() {
   const q = qEl.value;
   $('qclear').classList.toggle('hidden', !q);
-  const sorted = [...fiches].sort((a, b) => b.updated - a.updated);
+  const sorted = [...fiches].sort((a, b) => b.created - a.created);
   const res = sorted.filter(f => matches(f, q));
   $('count').textContent = fiches.length ? fiches.length + (fiches.length > 1 ? ' fiches' : ' fiche') : '';
   const hint = $('hint');
@@ -355,12 +412,24 @@ function render() {
     b.className = 'card';
     const p = f.photos[0];
     const thumb = p ? '<img class="thumb" src="' + urlFor(p.thumb, p.id + 't') + '" alt="">' : '<div class="thumb empty">🗂</div>';
-    const title = f.titre || (f.description ? f.description.split('\n')[0] : 'Sans titre');
-    const desc = f.titre ? f.description : f.description.split('\n').slice(1).join('\n');
+    let top, people = [], desc = f.description;
+    if (f.plaque) {
+      top = '<div class="plate"><span>' + highlight(f.plaque, q) + '</span></div>';
+      if (f.conducteur) people.push('<b>' + highlight(f.conducteur, q) + '</b>');
+    } else if (f.conducteur) {
+      top = '<div class="ctitle">' + highlight(f.conducteur, q) + '</div>';
+    } else {
+      const lines = desc.split('\n');
+      top = '<div class="ctitle">' + highlight(lines[0] || 'Fiche sans titre', q) + '</div>';
+      desc = lines.slice(1).join('\n');
+    }
+    f.passagers.forEach(p => people.push(highlight(p, q)));
     b.innerHTML = thumb +
-      '<div class="cbody"><div class="ctitle">' + highlight(title, q) + '</div>' +
+      '<div class="cbody">' + top +
+      (people.length ? '<div class="cpeople">👤 ' + people.join(', ') + '</div>' : '') +
+      (f.adresse ? '<div class="cpeople">📍 ' + highlight(f.adresse, q) + '</div>' : '') +
       (desc ? '<div class="cdesc">' + highlight(snippet(desc, q), q) + '</div>' : '') +
-      '<div class="cmeta">' + f.photos.length + ' photo' + (f.photos.length > 1 ? 's' : '') + ' · ' + fmtDate(f.updated) + '</div></div>';
+      '<div class="cmeta">' + f.photos.length + ' photo' + (f.photos.length > 1 ? 's' : '') + ' · 📅 ' + fmtDate(f.created) + '</div></div>';
     b.onclick = () => openDetail(f.id);
     frag.appendChild(b);
   }
@@ -405,12 +474,15 @@ let removedPhotos = [];
 
 function openEditor(f) {
   removedPhotos = [];
-  draft = f ? { ...f, photos: [...f.photos], isNew: false }
-            : { id: uid(), titre: '', description: '', photos: [], created: Date.now(), isNew: true };
+  draft = f ? { ...f, photos: [...f.photos], passagers: [...f.passagers], isNew: false }
+            : { id: uid(), plaque: '', conducteur: '', passagers: [], adresse: '', description: '', photos: [], created: Date.now(), isNew: true };
   $('edTitle').textContent = draft.isNew ? 'Nouvelle fiche' : 'Modifier';
-  $('edName').value = draft.titre;
+  $('edPlate').value = draft.plaque;
+  $('edDriver').value = draft.conducteur;
+  $('edAddr').value = draft.adresse;
   $('edDesc').value = draft.description;
   renderEdPhotos();
+  renderPass();
   $('editor').classList.remove('hidden');
   $('editor').scrollTop = 0;
 }
@@ -438,6 +510,21 @@ function renderEdPhotos() {
   };
   g.appendChild(add);
 }
+function renderPass(focusLast) {
+  const box = $('edPass'); box.innerHTML = '';
+  draft.passagers.forEach((name, i) => {
+    const row = document.createElement('div'); row.className = 'passrow';
+    row.innerHTML = '<input class="field" placeholder="Passager ' + (i + 1) + '" autocomplete="off" autocorrect="off"><button class="x" aria-label="Retirer">✕</button>';
+    const inp = row.querySelector('input'); inp.value = name;
+    inp.oninput = () => { draft.passagers[i] = inp.value; };
+    row.querySelector('.x').onclick = () => { draft.passagers.splice(i, 1); renderPass(); };
+    box.appendChild(row);
+  });
+  if (focusLast) { const all = box.querySelectorAll('input'); if (all.length) all[all.length - 1].focus(); }
+}
+$('edAddPass').onclick = () => { draft.passagers.push(''); renderPass(true); };
+$('edPlate').addEventListener('input', e => { const s = e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); try { e.target.setSelectionRange(s, s); } catch (_) {} });
+
 function closeEditor() { $('editor').classList.add('hidden'); draft = null; }
 
 $('edCancel').onclick = () => {
@@ -450,10 +537,13 @@ $('edCancel').onclick = () => {
   closeEditor();
 };
 $('edSave').onclick = async () => {
-  const titre = $('edName').value.trim();
+  const plaque = $('edPlate').value.trim().toUpperCase();
+  const conducteur = $('edDriver').value.trim();
+  const passagers = draft.passagers.map(s => s.trim()).filter(Boolean);
+  const adresse = $('edAddr').value.trim();
   const description = $('edDesc').value.trim();
-  if (!titre && !description && !draft.photos.length) { toast('Ajoute au moins une photo ou un texte'); return; }
-  const f = { id: draft.id, titre, description, photos: draft.photos, created: draft.created, updated: Date.now() };
+  if (!plaque && !conducteur && !passagers.length && !adresse && !description && !draft.photos.length) { toast('Ajoute au moins une photo ou une information'); return; }
+  const f = { id: draft.id, plaque, conducteur, passagers, adresse, description, photos: draft.photos, created: draft.created, updated: Date.now() };
   busy(true, 'Enregistrement…');
   try {
     await dbPut(f);
@@ -475,26 +565,42 @@ function openDetail(id) {
   currentId = id;
   const g = $('dtGallery'); g.innerHTML = '';
   g.classList.toggle('single', f.photos.length === 1);
-  g.classList.toggle('hidden', !f.photos.length);
+  $('dtGalWrap').classList.toggle('hidden', !f.photos.length);
+  const cnt = $('dtCount');
+  cnt.classList.toggle('hidden', f.photos.length < 2);
+  cnt.textContent = '1/' + f.photos.length;
+  g.onscroll = () => {
+    const first = g.querySelector('img'); if (!first) return;
+    const step = first.getBoundingClientRect().width + 8;
+    const i = Math.min(f.photos.length - 1, Math.max(0, Math.round(g.scrollLeft / step)));
+    cnt.textContent = (i + 1) + '/' + f.photos.length;
+  };
+  const d = new Date(f.created);
+  $('dtDate').innerHTML = '📅 Enregistrée le <b>' + esc(d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })) +
+    '</b> à <b>' + esc(d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })) + '</b>';
   f.photos.forEach(p => {
     const img = document.createElement('img');
     img.src = urlFor(p.full, p.id + 'f'); img.alt = '';
     img.onclick = () => { $('viewerImg').src = img.src; $('viewer').classList.remove('hidden'); };
     g.appendChild(img);
   });
-  $('dtName').textContent = f.titre || 'Sans titre';
-  const dd = $('dtDesc');
-  dd.textContent = f.description || 'Pas de description';
-  dd.classList.toggle('none', !f.description);
-  $('dtMeta').textContent = 'Créée le ' + fmtDate(f.created) + (f.updated - f.created > 60000 ? ' · modifiée le ' + fmtDate(f.updated) : '') +
-    ' · ' + f.photos.length + ' photo' + (f.photos.length > 1 ? 's' : '');
+  $('dtPlate').innerHTML = f.plaque ? '<div class="plate big"><span>' + esc(f.plaque) + '</span></div>' : '';
+  $('dtPlate').classList.toggle('hidden', !f.plaque);
+  const box = $('dtFields'); box.innerHTML = '';
+  const sec = (k, html) => { const d = document.createElement('div'); d.className = 'dsec'; d.innerHTML = '<div class="k">' + k + '</div>' + html; box.appendChild(d); };
+  if (f.conducteur) sec('Conducteur', '<div class="v">' + esc(f.conducteur) + '</div>');
+  if (f.passagers.length) sec('Passagers (' + f.passagers.length + ')', '<ul>' + f.passagers.map(p => '<li class="v">' + esc(p) + '</li>').join('') + '</ul>');
+  if (f.adresse) sec('Adresse', '<div class="v">' + esc(f.adresse) + '</div>');
+  if (f.description) sec('Description', '<div class="v">' + esc(f.description) + '</div>');
+  if (!box.children.length && !f.plaque) sec('Informations', '<div class="none">Aucune information</div>');
+  $('dtMeta').textContent = (f.updated - f.created > 60000 ? 'Modifiée le ' + fmtDate(f.updated) + ' · ' : '') + f.photos.length + ' photo' + (f.photos.length > 1 ? 's' : '');
   $('detail').classList.remove('hidden'); $('detail').scrollTop = 0; g.scrollLeft = 0;
 }
 $('dtBack').onclick = () => { $('detail').classList.add('hidden'); currentId = null; };
 $('dtEdit').onclick = () => { const f = fiches.find(x => x.id === currentId); $('detail').classList.add('hidden'); openEditor(f); };
 $('dtDelete').onclick = () => {
   const f = fiches.find(x => x.id === currentId); if (!f) return;
-  ask('Supprimer cette fiche ?', '« ' + (f.titre || 'Sans titre') + ' » et ses ' + f.photos.length + ' photo(s) seront effacées de ce téléphone.', async () => {
+  ask('Supprimer cette fiche ?', '« ' + label(f) + ' » et ses ' + f.photos.length + ' photo(s) seront effacées de ce téléphone.', async () => {
     try {
       await dbDel(f.id);
       f.photos.forEach(dropUrls);
@@ -545,7 +651,7 @@ $('exportBtn').onclick = async () => {
     for (const f of fiches) {
       const photos = [];
       for (const p of f.photos) photos.push({ id: p.id, full: await blobToDataURL(p.full), thumb: await blobToDataURL(p.thumb) });
-      out.fiches.push({ id: f.id, titre: f.titre, description: f.description, created: f.created, updated: f.updated, photos });
+      out.fiches.push({ id: f.id, plaque: f.plaque, conducteur: f.conducteur, passagers: f.passagers, adresse: f.adresse, description: f.description, created: f.created, updated: f.updated, photos });
     }
     const name = 'fiches-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json';
     const file = new File([JSON.stringify(out)], name, { type: 'application/json' });
@@ -570,11 +676,10 @@ $('importInput').onchange = async e => {
     if (!data || !Array.isArray(data.fiches)) throw new Error('format');
     let n = 0;
     for (const x of data.fiches) {
-      const f = {
-        id: x.id || uid(), titre: x.titre || '', description: x.description || '',
-        created: x.created || Date.now(), updated: x.updated || Date.now(),
+      const f = normFiche({
+        ...x,
         photos: (x.photos || []).map(p => ({ id: p.id || uid(), full: dataURLToBlob(p.full), thumb: dataURLToBlob(p.thumb || p.full) }))
-      };
+      });
       await dbPut(f);
       const i = fiches.findIndex(y => y.id === f.id);
       if (i >= 0) { fiches[i].photos.forEach(dropUrls); fiches[i] = f; } else fiches.push(f);
@@ -590,7 +695,7 @@ $('importInput').onchange = async e => {
 $('addBtn').onclick = () => openEditor(null);
 
 (async () => {
-  try { db = await openDB(); fiches = await dbAll(); }
+  try { db = await openDB(); fiches = (await dbAll()).map(normFiche); }
   catch (e) { memOnly = true; toast('Stockage indisponible ici : les fiches ne seront pas gardées'); }
   // demande à iOS de ne pas effacer les données
   try { if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); } catch (e) {}
